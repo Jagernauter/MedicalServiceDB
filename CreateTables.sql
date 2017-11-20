@@ -81,25 +81,64 @@ CREATE TABLE Diagnosis(
 			                        ON DELETE CASCADE
 );
 
+CREATE TABLE MedProcedures(
+  MedProcedureID          int IDENTITY(0,1),
+  MedProcedureDescription nvarchar(25)     NOT NULL,
+  MedProcedurePrice       int              NOT NULL,
+  DepartmentID            int              NOT NULL,
+
+  CONSTRAINT PK_MedProcedures_MedProcedureID PRIMARY KEY CLUSTERED (MedProcedureID),
+
+  CONSTRAINT FK_MedProcedures_DepartmentID FOREIGN KEY (DepartmentID)
+                                    REFERENCES Department (DepartmentID)
+			                        ON UPDATE CASCADE
+			                        ON DELETE CASCADE
+);
+
+CREATE TABLE MedProcedures_Employers(
+  MedProcedureID  int NOT NULL,
+  EmployerID      int NOT NULL,
+
+  CONSTRAINT FK_MedProceduresEmployers_EmployerID FOREIGN KEY (EmployerID)
+                                              REFERENCES Employer (EmployerID),
+
+  CONSTRAINT FK_MedProceduresEmployers_MedProcedureID  FOREIGN KEY (MedProcedureID)
+                                                     REFERENCES MedProcedures (MedProcedureID)
+													 ON UPDATE CASCADE
+													 ON DELETE CASCADE
+);
+
 CREATE TABLE Medicines(
   MedicinesID           int IDENTITY(0,1),
-  MedicinesAvailability bit                 NOT NULL,
+  MedicinesDescription  nvarchar(25),
+  MedicinesPrice        int NOT NULL
 
   CONSTRAINT PK_MedicinesID PRIMARY KEY CLUSTERED (MedicinesID)
 );
 
-CREATE TABLE Free_Medicines(
-  MedicinesID  int NOT NULL,
+CREATE TABLE FreeMedicines(
+  MedicinesID          int NOT NULL,
+  FreeMedicinesNumber  int NOT NULL
 
+  CONSTRAINT FK_FreeMedicines_MedicinesID  FOREIGN KEY (MedicinesID)
+                                    REFERENCES Medicines (MedicinesID )
+			                        ON UPDATE CASCADE
+			                        ON DELETE CASCADE
 );
 
-CREATE TABLE Paid_Medicines(
-  MedicinesID  int NOT NULL,
+CREATE TABLE PaidMedicines(
+  MedicinesID         int NOT NULL,
+  PaidMedicinesNumber int NOT NULL
+
+  CONSTRAINT FK_PaidMedicines_MedicinesID  FOREIGN KEY (MedicinesID)
+                                    REFERENCES Medicines (MedicinesID )
+			                        ON UPDATE CASCADE
+			                        ON DELETE CASCADE
 );
 
 CREATE TABLE Diagnosis_Medicines(
   DiagnosisID  int  NOT NULL,
-  MedicinesID       int  NOT NULL,
+  MedicinesID  int  NOT NULL,
 
   CONSTRAINT FK_DiagnosisMedicines_DiagnosisID FOREIGN KEY (DiagnosisID)
                                     REFERENCES Diagnosis (DiagnosisID)
@@ -169,26 +208,26 @@ CREATE TABLE Shedule(
 			                             ON DELETE CASCADE
 );
 
-CREATE TABLE Ñoupon(
+CREATE TABLE Coupon(
   CouponID           int IDENTITY(0,1),
   PatientID          int                NOT NULL,
   EmployerID         int                NOT NULL,
   AppointmentTimeID  int                NOT NULL,
-  CouponDate         datetime           NOT NULL,
+  CouponDate         datetime           DEFAULT (getdate()),
 
   CONSTRAINT PK_AppointmentCouponID PRIMARY KEY CLUSTERED (CouponID),
 
-  CONSTRAINT FK_Ñoupon_PatientID    FOREIGN KEY (PatientID)
+  CONSTRAINT FK_Coupon_PatientID    FOREIGN KEY (PatientID)
                                     REFERENCES PatientCard (PatientID)
 			                        ON UPDATE CASCADE
 			                        ON DELETE CASCADE,
 
-  CONSTRAINT FK_Ñoupon_EmployerID   FOREIGN KEY (EmployerID)
+  CONSTRAINT FK_Coupon_EmployerID   FOREIGN KEY (EmployerID)
                                     REFERENCES Employer (EmployerID)
 			                        ON UPDATE CASCADE
 			                        ON DELETE CASCADE,
 
-  CONSTRAINT FK_Ñoupon_AppointmentTimeID FOREIGN KEY (AppointmentTimeID)
+  CONSTRAINT FK_Coupon_AppointmentTimeID FOREIGN KEY (AppointmentTimeID)
                                          REFERENCES AppointmentTime (AppointmentTimeID)
 			                             ON UPDATE CASCADE
 			                             ON DELETE CASCADE
@@ -196,29 +235,29 @@ CREATE TABLE Ñoupon(
 
 CREATE TABLE Sanatorium(
   SanatoriumID          int  IDENTITY(0,1),
-  PatientID             int                 NOT NULL,
   SanatoriumDescription text                NOT NULL,
 
-  CONSTRAINT PK_SanatoriumID PRIMARY KEY CLUSTERED (SanatoriumID),
-
-  CONSTRAINT FK_Sanatorium_PatientID    FOREIGN KEY (PatientID)
-                                        REFERENCES PatientCard (PatientID)
-			                            ON UPDATE CASCADE
-			                            ON DELETE CASCADE
+  CONSTRAINT PK_SanatoriumID PRIMARY KEY CLUSTERED (SanatoriumID)
 );
 
-CREATE TABLE SanatoriumDecree(
+CREATE TABLE SendToSanatorium(
   SanatoriumDecreeID int  IDENTITY(0,1),
+  PatientID          int                 NOT NULL,
   SanatoriumID       int                 NOT NULL,
   DepartureDate      datetime            NOT NULL,
   ArrivalDate        datetime            NOT NULL,
 
   CONSTRAINT PK_SanatoriumDecreeID PRIMARY KEY CLUSTERED (SanatoriumDecreeID),
 
-  CONSTRAINT FK_SanatoriumDecree_SanatoriumID    FOREIGN KEY (SanatoriumID)
+  CONSTRAINT FK_SendToSanatorium_SanatoriumID    FOREIGN KEY (SanatoriumID)
                                                  REFERENCES Sanatorium (SanatoriumID)
 			                                     ON UPDATE CASCADE
-			                                     ON DELETE CASCADE
+			                                     ON DELETE CASCADE,
+
+  CONSTRAINT FK_SendToSanatorium_PatientID    FOREIGN KEY (PatientID)
+                                        REFERENCES PatientCard (PatientID)
+			                            ON UPDATE CASCADE
+			                            ON DELETE CASCADE
 );
 
 
